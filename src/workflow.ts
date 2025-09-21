@@ -11,5 +11,5 @@ export async function generateWorkflow(opts: CLIOptions): Promise<void> {
   spinner.message('Writing workflow file...');
   const yamlContents = stringify(template, {indent: 2});
   await writeFile(opts.output, yamlContents);
-  spinner.stop('Workflow generated!');
+  spinner.stop('Workflow file written successfully');
 }
