@@ -13,6 +13,67 @@ function cancelInteractive(): never {
   process.exit(0);
 }
 
+async function setupChangeSets(): Promise<void> {
+  const shouldInstall = await prompts.confirm({
+    message:
+      'To use Changesets, the "@changesets/cli" npm package must be installed. Install now?',
+    initialValue: true
+  });
+
+  if (prompts.isCancel(shouldInstall)) {
+    cancelInteractive();
+  }
+
+  if (shouldInstall) {
+    const taskLog = prompts.taskLog({
+      title: 'Installing @changesets/cli...',
+      limit: 4
+    });
+    try {
+      const proc = x('npm', ['install', '--save-dev', '@changesets/cli']);
+      for await (const line of proc) {
+        taskLog.message(line);
+      }
+      taskLog.success('✅  @changesets/cli installed successfully');
+    } catch (error) {
+      taskLog.error(
+        '❌  Failed to install @changesets/cli. Please install it manually and re-run the setup.'
+      );
+      prompts.log.error(`Error was: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  }
+
+  const initChangesets = await prompts.confirm({
+    message: 'Initialize Changesets in this repository?',
+    initialValue: true
+  });
+
+  if (prompts.isCancel(initChangesets)) {
+    cancelInteractive();
+  }
+
+  if (initChangesets) {
+    const taskLog = prompts.taskLog({
+      title: 'Initializing Changesets...',
+      limit: 4
+    });
+    try {
+      const proc = x('npx', ['changeset', 'init']);
+      for await (const line of proc) {
+        taskLog.message(line);
+      }
+      taskLog.success('✅  Changesets initialized successfully');
+    } catch (error) {
+      taskLog.error(
+        '❌  Failed to initialize Changesets. Please run "npx changeset init" manually and re-run the setup.'
+      );
+      prompts.log.error(`Error was: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  }
+}
+
 async function setupChangelogithub(): Promise<void> {
   const shouldInstall = await prompts.confirm({
     message:
@@ -78,7 +139,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
     await setupChangelogithub();
   }
   if (changeLogTool === 'changesets') {
-    throw new Error('Changesets support not yet implemented');
+    await setupChangeSets();
   }
 
   const triggerOptions: prompts.Option<Trigger>[] = [
@@ -87,6 +148,8 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
     {value: 'tag', label: 'Tag Pushed'},
     {value: 'push_main', label: 'Push to Main Branch'}
   ];
+
+  const preReleaseSupported = changeLogTool !== 'changesets';
 
   const userOptions = await prompts.group(
     {
@@ -126,13 +189,17 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
           placeholder: opts.env ?? 'none',
           defaultValue: opts.env ?? ''
         }),
-      prerelease: () =>
-        prompts.confirm({
+      prerelease: () => {
+        if (!preReleaseSupported) {
+          return Promise.resolve(false);
+        }
+        return prompts.confirm({
           message:
             'Enable pre-releases?\n' +
             'When pre-releases are enabled, a release marked as pre-release will be published under a `next` tag on npm.',
           initialValue: opts.prerelease
-        })
+        });
+      }
     },
     {
       onCancel: cancelInteractive
@@ -170,6 +237,13 @@ export async function runCLI(opts: CLIOptions): Promise<void> {
   if (!isValidChangeLogTool(opts.changelog)) {
     prompts.log.error('❌  Invalid changelog tool option provided.');
     process.exit(1);
+  }
+
+  if (opts.changelog === 'changesets' && opts.split) {
+    prompts.log.warn(
+      '⚠️  Changesets cannot currently be used with split workflows. Disabling split workflow.'
+    );
+    opts.split = false;
   }
 
   await generateWorkflow(opts);

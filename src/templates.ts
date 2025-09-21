@@ -35,6 +35,21 @@ echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
   ]
 });
 const createPublishSteps = (opts: CLIOptions) => {
+  if (opts.changelog === 'changesets') {
+    return [
+      {
+        name: 'Create Release or Publish',
+        uses: 'changesets/action@v1',
+        with: {
+          publish: 'npx changeset publish'
+        },
+        env: {
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        }
+      }
+    ];
+  }
+
   const steps: unknown[] = [];
 
   if (opts.prerelease) {
