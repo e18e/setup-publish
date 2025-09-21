@@ -54,7 +54,7 @@ const createPublishSteps = (opts: CLIOptions) => {
     });
   }
 
-  if (opts.changelogTool === 'changelogithub') {
+  if (opts.changelog === 'changelogithub') {
     steps.push({
       name: 'Generate Change Log',
       run: 'npx changelogithub',

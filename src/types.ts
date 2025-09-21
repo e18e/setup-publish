@@ -13,5 +13,5 @@ export interface CLIOptions {
   env: string | undefined;
   prerelease: boolean;
   interactive: boolean;
-  changelogTool: ChangeLogTool;
+  changelog: ChangeLogTool;
 }

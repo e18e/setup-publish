@@ -32,11 +32,7 @@ cli
   .option('--env', 'Set the environment for the workflow')
   .option('--prerelease', 'Support publishing pre-releases', false)
   .option('--interactive', 'Run the CLI in interactive mode', true)
-  .option(
-    '--changesets',
-    'Generate a workflow for publishing with Changesets',
-    false
-  )
+  .option('--changelog', 'Generate changelogs using a tool', 'none')
   .action(runCLI);
 
 cli.parse(process.argv);

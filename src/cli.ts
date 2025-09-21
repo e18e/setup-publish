@@ -2,6 +2,11 @@ import * as prompts from '@clack/prompts';
 import type {Trigger, CLIOptions, ChangeLogTool} from './types.js';
 import {generateWorkflow} from './workflow.js';
 import {x} from 'tinyexec';
+import {
+  getAvailableTriggersForChangelog,
+  isValidTrigger,
+  isValidChangeLogTool
+} from './helpers.js';
 
 function cancelInteractive(): never {
   prompts.cancel('✋  Operation cancelled');
@@ -10,7 +15,8 @@ function cancelInteractive(): never {
 
 async function setupChangelogithub(): Promise<void> {
   const shouldInstall = await prompts.confirm({
-    message: 'To use changelogithub, the "changelogithub" npm package must be installed. Install now?',
+    message:
+      'To use changelogithub, the "changelogithub" npm package must be installed. Install now?',
     initialValue: true
   });
 
@@ -21,7 +27,7 @@ async function setupChangelogithub(): Promise<void> {
   if (shouldInstall) {
     const taskLog = prompts.taskLog({
       title: 'Installing changelogithub...',
-      limit: 4,
+      limit: 4
     });
     try {
       const proc = x('npm', ['install', '--save-dev', 'changelogithub']);
@@ -30,7 +36,9 @@ async function setupChangelogithub(): Promise<void> {
       }
       taskLog.success('✅  changelogithub installed successfully');
     } catch (error) {
-      taskLog.error('❌  Failed to install changelogithub. Please install it manually and re-run the setup.');
+      taskLog.error(
+        '❌  Failed to install changelogithub. Please install it manually and re-run the setup.'
+      );
       prompts.log.error(`Error was: ${(error as Error).message}`);
       process.exit(1);
     }
@@ -57,37 +65,28 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         hint: 'Automate changelog generation and releases using changesets'
       }
     ],
-    initialValue: opts.changelogTool
+    initialValue: opts.changelog
   });
 
   if (prompts.isCancel(changeLogTool)) {
     cancelInteractive();
   }
 
-  const availableTriggers: Trigger[] = [];
+  const availableTriggers = getAvailableTriggersForChangelog(changeLogTool);
 
-  switch (changeLogTool) {
-    case 'none':
-      availableTriggers.push(
-        'tag',
-        'release_published',
-        'release_created',
-        'push_main'
-      );
-      break;
-    case 'changelogithub':
-      availableTriggers.push(
-        'tag',
-        'release_published',
-        'release_created',
-        'push_main'
-      );
-      await setupChangelogithub();
-      break;
-    case 'changesets':
-      availableTriggers.push('push_main');
-      throw new Error('Changesets support not yet implemented');
+  if (changeLogTool === 'changelogithub') {
+    await setupChangelogithub();
   }
+  if (changeLogTool === 'changesets') {
+    throw new Error('Changesets support not yet implemented');
+  }
+
+  const triggerOptions: prompts.Option<Trigger>[] = [
+    {value: 'release_published', label: 'GitHub Release Published'},
+    {value: 'release_created', label: 'GitHub Release Created'},
+    {value: 'tag', label: 'Tag Pushed'},
+    {value: 'push_main', label: 'Push to Main Branch'}
+  ];
 
   const userOptions = await prompts.group(
     {
@@ -114,11 +113,9 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
       trigger: () =>
         prompts.select<Trigger>({
           message: 'Select the trigger for the workflow',
-          options: [
-            {value: 'release_published', label: 'GitHub Release Published'},
-            {value: 'release_created', label: 'GitHub Release Created'},
-            {value: 'tag', label: 'Tag Pushed'}
-          ],
+          options: triggerOptions.filter((option) =>
+            availableTriggers.includes(option.value)
+          ),
           initialValue: opts.trigger
         }),
       env: () =>
@@ -144,6 +141,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
 
   return {
     ...opts,
+    changelog: changeLogTool,
     ...userOptions
   };
 }
@@ -153,6 +151,25 @@ export async function runCLI(opts: CLIOptions): Promise<void> {
 
   if (opts.interactive) {
     opts = await runInteractive(opts);
+  }
+
+  if (!isValidTrigger(opts.trigger)) {
+    prompts.log.error('❌  Invalid trigger option provided.');
+    process.exit(1);
+  }
+
+  const availableTriggers = getAvailableTriggersForChangelog(opts.changelog);
+
+  if (!availableTriggers.includes(opts.trigger)) {
+    prompts.log.error(
+      `❌  The selected changelog tool "${opts.changelog}" is not compatible with the "${opts.trigger}" trigger.`
+    );
+    process.exit(1);
+  }
+
+  if (!isValidChangeLogTool(opts.changelog)) {
+    prompts.log.error('❌  Invalid changelog tool option provided.');
+    process.exit(1);
   }
 
   await generateWorkflow(opts);
