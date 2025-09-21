@@ -34,8 +34,8 @@ echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
     }
   ]
 });
-const createBuildAndPublishJob = (opts: CLIOptions) => {
-  const steps: unknown[] = [...createCommonBuildSteps(opts)];
+const createPublishSteps = (opts: CLIOptions) => {
+  const steps: unknown[] = [];
 
   if (opts.prerelease) {
     steps.push(
@@ -53,6 +53,25 @@ const createBuildAndPublishJob = (opts: CLIOptions) => {
       run: 'npm publish --provenance --access public'
     });
   }
+
+  if (opts.changelogTool === 'changelogithub') {
+    steps.push({
+      name: 'Generate Change Log',
+      run: 'npx changelogithub',
+      env: {
+        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      }
+    });
+  }
+
+  return steps;
+};
+
+const createBuildAndPublishJob = (opts: CLIOptions) => {
+  const steps: unknown[] = [
+    ...createCommonBuildSteps(opts),
+    ...createPublishSteps(opts)
+  ];
 
   return {
     'runs-on': 'ubuntu-latest',
@@ -67,25 +86,9 @@ const createPublishOnlyJob = (opts: CLIOptions) => {
     {
       uses: 'actions/setup-node@v5',
       with: {'node-version': 24, 'package-manager-cache': false}
-    }
+    },
+    ...createPublishSteps(opts)
   ];
-
-  if (opts.prerelease) {
-    steps.push(
-      {
-        run: 'npm publish --provenance --access public',
-        if: '!github.event.release.prerelease'
-      },
-      {
-        run: 'npm publish --provenance --access public --tag next',
-        if: 'github.event.release.prerelease'
-      }
-    );
-  } else {
-    steps.push({
-      run: 'npm publish --provenance --access public'
-    });
-  }
 
   return {
     needs: ['test', 'build'],
@@ -123,6 +126,9 @@ const createJobs = (opts: CLIOptions) => ({
   }
 });
 const triggerTemplates: Record<Trigger, unknown> = {
+  push_main: {
+    push: {branches: ['main']}
+  },
   release_published: {
     release: {types: ['published']}
   },

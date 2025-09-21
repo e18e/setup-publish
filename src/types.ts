@@ -1,4 +1,9 @@
-export type Trigger = 'release_published' | 'release_created' | 'tag';
+export type Trigger =
+  | 'release_published'
+  | 'release_created'
+  | 'tag'
+  | 'push_main';
+export type ChangeLogTool = 'changelogithub' | 'changesets' | 'none';
 
 export interface CLIOptions {
   output: string;
@@ -8,5 +13,5 @@ export interface CLIOptions {
   env: string | undefined;
   prerelease: boolean;
   interactive: boolean;
-  changesets: boolean;
+  changelogTool: ChangeLogTool;
 }

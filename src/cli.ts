@@ -1,5 +1,5 @@
 import * as prompts from '@clack/prompts';
-import type {Trigger, CLIOptions} from './types.js';
+import type {Trigger, CLIOptions, ChangeLogTool} from './types.js';
 import {generateWorkflow} from './workflow.js';
 
 function cancelInteractive(): never {
@@ -8,19 +8,54 @@ function cancelInteractive(): never {
 }
 
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
-  const changesets = await prompts.confirm({
-    message:
-      'Use Changesets for versioning and publishing?\n' +
-      'This will set up the workflow to publish using Changesets rather than GitHub releases.',
-    initialValue: opts.changesets
+  const changeLogTool = await prompts.select<ChangeLogTool>({
+    message: 'Select a changelog tool',
+    options: [
+      {
+        value: 'none',
+        label: 'None',
+        hint: 'GitHub releases will be used (manual creation)'
+      },
+      {
+        value: 'changelogithub',
+        label: 'changelogithub',
+        hint: 'Automate changelog generation using changelogithub to create GitHub releases'
+      },
+      {
+        value: 'changesets',
+        label: 'Changesets',
+        hint: 'Automate changelog generation and releases using changesets'
+      }
+    ],
+    initialValue: opts.changelogTool
   });
 
-  if (prompts.isCancel(changesets)) {
+  if (prompts.isCancel(changeLogTool)) {
     cancelInteractive();
   }
 
-  if (changesets) {
-    throw new Error('Changesets support not yet implemented');
+  const availableTriggers: Trigger[] = [];
+
+  switch (changeLogTool) {
+    case 'none':
+      availableTriggers.push(
+        'tag',
+        'release_published',
+        'release_created',
+        'push_main'
+      );
+      break;
+    case 'changelogithub':
+      availableTriggers.push(
+        'tag',
+        'release_published',
+        'release_created',
+        'push_main'
+      );
+      break;
+    case 'changesets':
+      availableTriggers.push('push_main');
+      throw new Error('Changesets support not yet implemented');
   }
 
   const userOptions = await prompts.group(
