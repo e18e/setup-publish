@@ -22,7 +22,7 @@ cli
     'Change the name of the output file',
     '.github/workflows/publish.yml'
   )
-  .option('--split', 'Split the workflow into multiple jobs', false)
+  .option('--split', 'Split the workflow into multiple jobs', true)
   .option('--no-scripts', 'Disable running scripts before publishing', true)
   .option(
     '--trigger',
