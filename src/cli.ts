@@ -1,10 +1,40 @@
 import * as prompts from '@clack/prompts';
 import type {Trigger, CLIOptions, ChangeLogTool} from './types.js';
 import {generateWorkflow} from './workflow.js';
+import {x} from 'tinyexec';
 
 function cancelInteractive(): never {
   prompts.cancel('✋  Operation cancelled');
   process.exit(0);
+}
+
+async function setupChangelogithub(): Promise<void> {
+  const shouldInstall = await prompts.confirm({
+    message: 'To use changelogithub, the "changelogithub" npm package must be installed. Install now?',
+    initialValue: true
+  });
+
+  if (prompts.isCancel(shouldInstall)) {
+    cancelInteractive();
+  }
+
+  if (shouldInstall) {
+    const taskLog = prompts.taskLog({
+      title: 'Installing changelogithub...',
+      limit: 4,
+    });
+    try {
+      const proc = x('npm', ['install', '--save-dev', 'changelogithub']);
+      for await (const line of proc) {
+        taskLog.message(line);
+      }
+      taskLog.success('✅  changelogithub installed successfully');
+    } catch (error) {
+      taskLog.error('❌  Failed to install changelogithub. Please install it manually and re-run the setup.');
+      prompts.log.error(`Error was: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  }
 }
 
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
@@ -52,6 +82,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         'release_created',
         'push_main'
       );
+      await setupChangelogithub();
       break;
     case 'changesets':
       availableTriggers.push('push_main');
