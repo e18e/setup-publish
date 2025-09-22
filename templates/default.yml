@@ -1,0 +1,69 @@
+name: Publish to npm
+permissions: {}
+on:
+  release:
+    types:
+      - published
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm version $TAG_NAME --git-tag-version=false
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+      - id: pack
+        run: |-
+          TARBALL=$(npm pack)
+          echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tarball
+          path: ${{ steps.pack.outputs.tarball }}
+  publish:
+    needs:
+      - test
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      TARBALL: ${{ needs.build.outputs.tarball }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: tarball
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm publish --provenance --access public
+        if: "!github.event.release.prerelease"
+      - run: npm publish --provenance --access public --tag next
+        if: github.event.release.prerelease

@@ -1,162 +1,65 @@
-import type {Trigger, CLIOptions} from './types.js';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import * as prompts from '@clack/prompts';
+import type {CLIOptions} from './types.js';
+import {parse, stringify} from 'yaml';
+import {dset} from 'dset';
 
-const createCommonBuildSteps = (opts: CLIOptions) => [
-  {uses: 'actions/checkout@v5', with: {'persist-credentials': false}},
-  {
-    uses: 'actions/setup-node@v5',
-    with: {'node-version': 24, 'package-manager-cache': false}
-  },
-  {run: opts['no-scripts'] ? installWithoutScripts : installWithScripts},
-  {run: 'npm run build'},
-  {
-    run: 'npm version $TAG_NAME --git-tag-version=false',
-    env: {
-      TAG_NAME: '${{ github.ref_name }}'
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const templatesDir = path.join(dirname, '../templates');
+const availableTemplates: string[] = [];
+let availableTemplatesPopulated = false;
+
+async function populateAvailableTemplates(arr: string[]): Promise<void> {
+  const files = await fs.readdir(templatesDir);
+  for (const file of files) {
+    if (file.endsWith('.yml')) {
+      arr.push(path.basename(file, '.yml'));
     }
   }
-];
-const createBuildOnlyJob = (opts: CLIOptions) => ({
-  'runs-on': 'ubuntu-latest',
-  permissions: {contents: 'read'},
-  outputs: {tarball: '${{ steps.pack.outputs.tarball }}'},
-  steps: [
-    ...createCommonBuildSteps(opts),
-    {
-      id: 'pack',
-      run: `
-TARBALL=$(npm pack)
-echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
-      `.trim()
-    },
-    {
-      uses: 'actions/upload-artifact@v4',
-      with: {name: 'tarball', path: '${{ steps.pack.outputs.tarball }}'}
-    }
-  ]
-});
-const createPublishSteps = (opts: CLIOptions) => {
-  if (opts.changelog === 'changesets') {
-    return [
-      {
-        name: 'Create Release or Publish',
-        uses: 'changesets/action@v1',
-        with: {
-          publish: 'npx changeset publish'
-        },
-        env: {
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        }
-      }
-    ];
+}
+
+export async function getAvailableTemplates(): Promise<string[]> {
+  if (!availableTemplatesPopulated) {
+    await populateAvailableTemplates(availableTemplates);
+    availableTemplatesPopulated = true;
+  }
+  return availableTemplates;
+}
+
+export async function createTemplate(opts: CLIOptions): Promise<void> {
+  const templates = await getAvailableTemplates();
+
+  // Shouldn't ever happen but just in case
+  if (!templates.includes(opts.template)) {
+    return;
   }
 
-  const steps: unknown[] = [];
+  const templatePath = path.join(templatesDir, `${opts.template}.yml`);
+  let templateContent: string;
 
-  if (opts.prerelease) {
-    steps.push(
-      {
-        run: 'npm publish --provenance --access public',
-        if: '!github.event.release.prerelease'
-      },
-      {
-        run: 'npm publish --provenance --access public --tag next',
-        if: 'github.event.release.prerelease'
-      }
+  try {
+    templateContent = await fs.readFile(templatePath, 'utf-8');
+  } catch (error) {
+    prompts.log.error(
+      `❌ Failed to create template: ${(error as Error).message}`
     );
-  } else {
-    steps.push({
-      run: 'npm publish --provenance --access public'
-    });
+    return;
   }
 
-  if (opts.changelog === 'changelogithub') {
-    steps.push({
-      name: 'Generate Change Log',
-      run: 'npx changelogithub',
-      env: {
-        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      }
-    });
+  if (opts.env) {
+    const parsed = parse(templateContent) as Record<string, unknown>;
+    dset(parsed, 'jobs.publish.environment', opts.env);
+    templateContent = stringify(parsed, {indent: 2});
   }
 
-  return steps;
-};
-
-const createBuildAndPublishJob = (opts: CLIOptions) => {
-  const steps: unknown[] = [
-    ...createCommonBuildSteps(opts),
-    ...createPublishSteps(opts)
-  ];
-
-  return {
-    'runs-on': 'ubuntu-latest',
-    permissions: {contents: 'read'},
-    outputs: {tarball: '${{ steps.pack.outputs.tarball }}'},
-    steps
-  };
-};
-const createPublishOnlyJob = (opts: CLIOptions) => {
-  const steps: unknown[] = [
-    {uses: 'actions/download-artifact@v5', with: {name: 'tarball'}},
-    {
-      uses: 'actions/setup-node@v5',
-      with: {'node-version': 24, 'package-manager-cache': false}
-    },
-    ...createPublishSteps(opts)
-  ];
-
-  return {
-    needs: ['test', 'build'],
-    'runs-on': 'ubuntu-latest',
-    environment: 'publish',
-    permissions: {'id-token': 'write'},
-    env: {TARBALL: '${{ needs.build.outputs.tarball }}'},
-    steps
-  };
-};
-const installWithScripts = 'npm ci';
-const installWithoutScripts = 'npm ci --ignore-scripts';
-
-const createTestJob = (opts: CLIOptions) => ({
-  'runs-on': 'ubuntu-latest',
-  permissions: {contents: 'read'},
-  steps: [
-    {uses: 'actions/checkout@v5', with: {'persist-credentials': false}},
-    {uses: 'actions/setup-node@v5', with: {'node-version': 24, cache: 'npm'}},
-    {run: opts['no-scripts'] ? installWithoutScripts : installWithScripts},
-    {run: 'npm test'}
-  ]
-});
-const createSplitJobs = (opts: CLIOptions) => ({
-  jobs: {
-    test: createTestJob(opts),
-    build: createBuildOnlyJob(opts),
-    'publish-npm': createPublishOnlyJob(opts)
+  try {
+    await fs.writeFile(opts.output, templateContent);
+  } catch (error) {
+    prompts.log.error(
+      `❌ Failed to write template to ${opts.output}: ${(error as Error).message}`
+    );
+    return;
   }
-});
-const createJobs = (opts: CLIOptions) => ({
-  jobs: {
-    test: createTestJob(opts),
-    build: createBuildAndPublishJob(opts)
-  }
-});
-const triggerTemplates: Record<Trigger, unknown> = {
-  push_main: {
-    push: {branches: ['main']}
-  },
-  release_published: {
-    release: {types: ['published']}
-  },
-  release_created: {
-    release: {types: ['created']}
-  },
-  tag: {
-    push: {tags: ['v*']}
-  }
-};
-export const createTemplate = (opts: CLIOptions) => ({
-  name: 'Publish to npm',
-  permissions: {},
-  on: triggerTemplates[opts.trigger],
-  jobs: opts.split ? createSplitJobs(opts) : createJobs(opts)
-});
+}
