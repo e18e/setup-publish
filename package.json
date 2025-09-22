@@ -3,10 +3,11 @@
   "version": "0.0.0-dev",
   "description": "A CLI to help with building publish workflows.",
   "bin": {
-    "setup-publish": "lib/cli.js"
+    "setup-publish": "lib/main.js"
   },
   "files": [
-    "lib"
+    "lib",
+    "templates"
   ],
   "keywords": [
     "publish",
