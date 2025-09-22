@@ -3,6 +3,7 @@ import type {CLIOptions} from './types.js';
 import {generateWorkflow} from './workflow.js';
 import {x} from 'tinyexec';
 import {getAvailableTemplates} from './templates.js';
+import pc from 'picocolors';
 
 function cancelInteractive(): never {
   prompts.cancel('✋  Operation cancelled');
@@ -102,6 +103,67 @@ async function setupChangelogithub(): Promise<void> {
   }
 }
 
+const defaultTemplateSummary = `
+${pc.green('GitHub releases are now configured to be managed manually.')}
+
+${pc.bold('To create a new release, follow these steps:')}
+
+${pc.cyan('1.')} Tag the ${pc.yellow('`main`')} branch with the new semantic version:
+
+${pc.gray('$')} ${pc.blue('git checkout main')}
+${pc.gray('$')} ${pc.blue('git pull')}
+${pc.gray('$')} ${pc.blue('git tag vX.Y.Z')} ${pc.gray('# Replace X.Y.Z with the new version number')}
+${pc.gray('$')} ${pc.blue('git push origin vX.Y.Z')}
+
+${pc.cyan('2.')} Create a new release on GitHub (GitHub will automatically populate this with a changelog based on merged PRs).
+
+${pc.cyan('3.')} ${pc.dim('(Optional)')} If you want this to be a pre-release, check the ${pc.yellow('"Set as pre-release"')} option.
+
+${pc.cyan('4.')} Publish the release!
+
+${pc.green('The workflow will now be triggered and will automatically publish to npm.')}
+`;
+
+const changelogithubTemplateSummary = `
+${pc.green('GitHub releases are now configured to be managed using changelogithub.')}
+
+${pc.bold('To create a new release, follow these steps:')}
+
+${pc.cyan('1.')} Tag the ${pc.yellow('`main`')} branch with the new semantic version:
+
+${pc.gray('$')} ${pc.blue('git checkout main')}
+${pc.gray('$')} ${pc.blue('git pull')}
+${pc.gray('$')} ${pc.blue('git tag vX.Y.Z')} ${pc.gray('# Replace X.Y.Z with the new version number')}
+${pc.gray('$')} ${pc.blue('git push origin vX.Y.Z')}
+
+${pc.dim('NOTE')} If you want this to be a pre-release, use a pre-release semantic version such as ${pc.yellow('vX.Y.Z-beta.0')}.
+
+${pc.green('Changelogithub will now automatically create a GitHub release, and the package will be published to npm.')}
+`;
+
+const changesetsTemplateSummary = `
+${pc.green('GitHub releases are now configured to be managed using Changesets.')}
+
+${pc.bold('To create a new release, follow these steps:')}
+
+${pc.cyan('1.')} Create a changeset describing the changes in this release:
+
+${pc.gray('$')} ${pc.blue('npx changeset')}
+${pc.dim('# Follow the prompts to describe the changes and set the version bump (major, minor, patch)')}
+
+${pc.cyan('2.')} Commit the changeset file and open a pull request to merge it into ${pc.yellow('`main`')}.
+
+${pc.cyan('3.')} Once the PR is merged, changesets will automatically create a release pull request. Review and merge this PR to create a new GitHub release and publish to npm.
+
+${pc.green('The workflow will now be triggered and will automatically publish to npm.')}
+`;
+
+const templateSummaries: Record<string, string> = {
+  default: defaultTemplateSummary,
+  changelogithub: changelogithubTemplateSummary,
+  changesets: changesetsTemplateSummary
+};
+
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
   const template = await prompts.select({
     message: 'Select a changelog tool',
@@ -184,4 +246,9 @@ export async function runCLI(opts: CLIOptions): Promise<void> {
   await generateWorkflow(opts);
 
   prompts.outro('✨  Workflow generated!');
+
+  const templateSummary = templateSummaries[opts.template];
+  if (templateSummary) {
+    prompts.box(templateSummary, 'Summary', {});
+  }
 }
