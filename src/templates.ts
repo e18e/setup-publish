@@ -43,7 +43,7 @@ export async function createTemplate(opts: CLIOptions): Promise<void> {
     templateContent = await fs.readFile(templatePath, 'utf-8');
   } catch (error) {
     prompts.log.error(
-      `❌ Failed to create template: ${(error as Error).message}`
+      `❌ Failed to read template: ${(error as Error).message}`
     );
     return;
   }
