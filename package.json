@@ -40,7 +40,6 @@
     "eslint": "^9.36.0",
     "premove": "^4.0.0",
     "prettier": "^3.6.2",
-    "tinyexec": "^1.0.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.0",
     "vitest": "^3.2.4"
@@ -49,6 +48,7 @@
     "@clack/prompts": "^1.0.0-alpha.5",
     "dset": "^3.1.4",
     "picocolors": "^1.1.1",
+    "tinyexec": "^1.0.1",
     "sade": "^1.8.1",
     "yaml": "^2.8.1"
   }
