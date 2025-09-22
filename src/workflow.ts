@@ -1,8 +1,8 @@
 import {stringify} from 'yaml';
 import type {CLIOptions} from './types.js';
 import {writeFile} from 'node:fs/promises';
-import {createTemplate} from './templates.js';
 import * as prompts from '@clack/prompts';
+import {createTemplate} from './templates.js';
 
 export async function generateWorkflow(opts: CLIOptions): Promise<void> {
   const spinner = prompts.spinner();

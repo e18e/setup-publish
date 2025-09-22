@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.0.0-alpha.4",
+    "dset": "^3.1.4",
     "sade": "^1.8.1",
     "yaml": "^2.8.1"
   }
