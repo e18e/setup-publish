@@ -1,46 +1,68 @@
 # `@e18e/setup-publish`
 
-> A tiny CLI to assist with setting up GitHub workflows for publishing packages to npm.
+[![npm version](https://img.shields.io/npm/v/@e18e/setup-publish.svg)](https://www.npmjs.com/package/@e18e/setup-publish)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Install
+> 🚀 A tiny CLI to assist with setting up GitHub workflows for publishing packages to npm.
 
-```bash
-$ npm install -g @e18e/setup-publish
-```
-
-## Usage
+## 📦 Install
 
 ```bash
-$ setup-publish
+npm install -g @e18e/setup-publish
 ```
 
-### Options
+## 🚀 Usage
+
+```bash
+setup-publish
+```
+
+## ⚙️ Options
 
 By default, the CLI runs in **interactive mode**, prompting you for configuration options. You can also provide options directly via the command line with `--no-interactive` to skip the prompts entirely.
 
-| Option | Description | Default | Values |
-|--------|-------------|---------|--------|
+| Option | Description | Default | Available Values |
+|--------|-------------|---------|------------------|
 | `--output <path>` | Output path for the generated workflow file | `.github/workflows/publish.yml` | Any valid file path |
 | `--template <name>` | Template to use for workflow generation | `default` | <ul><li>`default` - Manual GitHub release management</li><li>`changelogithub` - Automated changelog with changelogithub</li><li>`changesets` - Automated releases with changesets</li></ul> |
 | `--env <env>` | GitHub environment for deployment protection | _none_ | Any environment name |
 | `--interactive` | Run CLI in interactive mode | `true` | boolean |
 
-### Examples
+## 📚 Examples
+
+### Interactive Mode (Default)
 
 ```bash
-# Interactive mode (default)
 setup-publish
+```
 
-# Generate workflow with changesets template (non-interactive)
+### Non-Interactive Mode
+
+```bash
+# Generate workflow with changesets template
 setup-publish --no-interactive --template changesets
 
-# Custom output path with GitHub environment (non-interactive)
+# Custom output path with GitHub environment
 setup-publish --no-interactive --output .github/workflows/release.yml --env production
 
 # Use changelogithub template with custom environment
 setup-publish --no-interactive --template changelogithub --env staging
 ```
 
-# License
+## 📋 Templates
+
+### 🎯 **Default**
+
+Manual GitHub release management - this is the most baic setup, allowing you to create releases manually via GitHub's interface.
+
+### 📝 **Changelogithub**
+
+Automated changelog generation using [changelogithub](https://github.com/antfu/changelogithub) - ideal for projects following conventional commits.
+
+### 🔄 **Changesets**
+
+Automated releases with [changesets](https://github.com/changesets/changesets) - great for monorepos and coordinated releases.
+
+## 📄 License
 
 MIT
