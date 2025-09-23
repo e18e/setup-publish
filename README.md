@@ -17,6 +17,14 @@ npm install -g @e18e/setup-publish
 setup-publish
 ```
 
+## 🛠️ Features
+
+- **Granular permissions** - Each workflow step has minimal required permissions
+- **SHA-pinned actions** - GitHub actions referenced by commit SHA for security
+- **Install scripts disabled** - Prevents malicious package install scripts from running
+- **Separated jobs** - Build and publish run as independent jobs for better isolation
+- **Secure publish** - Publish job only uploads pre-built artifacts, no external code execution
+
 ## ⚙️ Options
 
 By default, the CLI runs in **interactive mode**, prompting you for configuration options. You can also provide options directly via the command line with `--no-interactive` to skip the prompts entirely.
