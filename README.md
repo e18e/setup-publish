@@ -11,10 +11,20 @@
 npm install -g @e18e/setup-publish
 ```
 
+Or you can use `npx`:
+
+```bash
+npx @e18e/setup-publish
+```
+
 ## 🚀 Usage
 
 ```bash
+# If installed globally
 setup-publish
+
+# Or using npx
+npx @e18e/setup-publish
 ```
 
 ## 🛠️ Features
