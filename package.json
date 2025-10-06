@@ -45,7 +45,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@clack/prompts": "^1.0.0-alpha.5",
+    "@clack/prompts": "^1.0.0-alpha.6",
     "dset": "^3.1.4",
     "picocolors": "^1.1.1",
     "tinyexec": "^1.0.1",
