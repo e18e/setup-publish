@@ -165,6 +165,34 @@ const templateSummaries: Record<string, string> = {
 };
 
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
+  const pm = await prompts.select({
+    message: 'What package manager do you use?',
+    options: [
+      {
+        value: 'npm',
+        label: 'Node + npm',
+      },
+      {
+        value: 'bun',
+        label: 'Bun',
+      },
+      {
+        value: 'pnpm',
+        label: 'pnpm',
+      }
+    ],
+    initialValue: opts.template
+  });
+
+  if (prompts.isCancel(pm)) {
+    cancelInteractive();
+  }
+
+  if (pm === "pnpm") {
+    prompts.log.error(`pnpm is not supported at the moment`);
+    return cancelInteractive();
+  }
+
   const template = await prompts.select({
     message: 'Select a changelog tool',
     options: [
@@ -184,7 +212,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         hint: 'Automate changelog generation and releases using changesets'
       }
     ],
-    initialValue: opts.template
+    initialValue: opts.template,
   });
 
   if (prompts.isCancel(template)) {
@@ -223,6 +251,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
   return {
     ...opts,
     template,
+    pm,
     ...userOptions
   };
 }
