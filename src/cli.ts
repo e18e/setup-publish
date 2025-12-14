@@ -169,8 +169,8 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
     message: 'What package manager do you use?',
     options: [
       {
-        value: 'npm',
-        label: 'Node + npm',
+        value: '',
+        label: 'npm',
       },
       {
         value: 'bun',
@@ -179,6 +179,10 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
       {
         value: 'pnpm',
         label: 'pnpm',
+      },
+      {
+        value: 'yarn',
+        label: 'yarn',
       }
     ],
     initialValue: opts.template
@@ -186,11 +190,6 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
 
   if (prompts.isCancel(pm)) {
     cancelInteractive();
-  }
-
-  if (pm === "pnpm") {
-    prompts.log.error(`pnpm is not supported at the moment`);
-    return cancelInteractive();
   }
 
   const template = await prompts.select({

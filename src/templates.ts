@@ -32,14 +32,14 @@ export async function createTemplate(opts: CLIOptions): Promise<void> {
   const templates = await getAvailableTemplates();
 
   // Shouldn't ever happen but just in case
-  if (!opts.pm && !templates.includes(opts.template)) {
-    prompts.log.error(`❌ Template for current configuration not found. Please open an issue on GitHub`);
+  if (!templates.includes(opts.template)) {
+    prompts.log.error(`❌ Template for current configuration not found`);
     return;
   }
 
-  if (!templates.includes(`${opts.template}+${opts.pm}`)) {
-    prompts.log.error(`❌ Template for current configuration not found. Please open an issue on GitHub`);
-    return;
+  if (opts.pm && !templates.includes(`${opts.template}+${opts.pm}`)) {
+    prompts.log.warn(`⚠️ Template for your package manager does not exist. Falling back to npm`);
+    opts.pm = '';
   }
 
   const templatePath = opts.pm
