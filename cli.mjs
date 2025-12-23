@@ -1,2 +1,2 @@
-#!/bin/env node
+#!/usr/bin/env node
 import './lib/main.js';
