@@ -33,9 +33,7 @@ export async function createTemplate(opts: CLIOptions): Promise<void> {
 
   // Shouldn't ever happen but just in case
   if (!templates.includes(opts.template)) {
-    prompts.log.error(
-      "❌ Template for current configuration not found"
-    );
+    prompts.log.error("❌ Template for current configuration not found");
     return;
   }
 
