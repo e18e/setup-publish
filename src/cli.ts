@@ -165,6 +165,33 @@ const templateSummaries: Record<string, string> = {
 };
 
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
+  const pm = await prompts.select({
+    message: 'What package manager do you use?',
+    options: [
+      {
+        value: '',
+        label: 'npm'
+      },
+      {
+        value: 'bun',
+        label: 'Bun'
+      },
+      {
+        value: 'pnpm',
+        label: 'pnpm'
+      },
+      {
+        value: 'yarn',
+        label: 'yarn'
+      }
+    ],
+    initialValue: opts.template
+  });
+
+  if (prompts.isCancel(pm)) {
+    cancelInteractive();
+  }
+
   const template = await prompts.select({
     message: 'Select a changelog tool',
     options: [
@@ -223,6 +250,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
   return {
     ...opts,
     template,
+    pm,
     ...userOptions
   };
 }

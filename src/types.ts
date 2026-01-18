@@ -3,4 +3,5 @@ export interface CLIOptions {
   env: string | undefined;
   interactive: boolean;
   template: string;
+  pm?: string;
 }
