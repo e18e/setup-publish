@@ -27,7 +27,7 @@ describe('getAvailableTemplates', () => {
       'default+bun'
     ];
     expect(templates).toHaveLength(expectedTemplates.length);
-    expect(templates).toEqual(expect.arrayContaining(expectedTemplates.length));
+    expect(templates).toEqual(expect.arrayContaining(expectedTemplates));
   });
 });
 
