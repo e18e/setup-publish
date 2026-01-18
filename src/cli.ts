@@ -170,19 +170,19 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
     options: [
       {
         value: '',
-        label: 'npm',
+        label: 'npm'
       },
       {
         value: 'bun',
-        label: 'Bun',
+        label: 'Bun'
       },
       {
         value: 'pnpm',
-        label: 'pnpm',
+        label: 'pnpm'
       },
       {
         value: 'yarn',
-        label: 'yarn',
+        label: 'yarn'
       }
     ],
     initialValue: opts.template
@@ -211,7 +211,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         hint: 'Automate changelog generation and releases using changesets'
       }
     ],
-    initialValue: opts.template,
+    initialValue: opts.template
   });
 
   if (prompts.isCancel(template)) {
