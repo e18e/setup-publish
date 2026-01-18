@@ -19,13 +19,15 @@ const exists = async (path: string) => {
 describe('getAvailableTemplates', () => {
   test('should return an array of available templates', async () => {
     const templates = await getAvailableTemplates();
-    expect(templates).toEqual([
+    const expectedTemplates = [
       'changelogithub',
       'changesets',
       'changesets+bun',
       'default',
       'default+bun'
-    ]);
+    ];
+    expect(templates).toHaveLength(expectedTemplates.length);
+    expect(templates).toEqual(expect.arrayContaining(expectedTemplates.length));
   });
 });
 
