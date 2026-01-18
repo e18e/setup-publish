@@ -45,8 +45,8 @@ export async function createTemplate(opts: CLIOptions): Promise<void> {
   }
 
   const templatePath = opts.pm
-    ? path.join(templatesDir, `${opts.template}.yml`)
-    : path.join(templatesDir, `${opts.template}+${opts.pm}.yml`);
+    ? path.join(templatesDir, `${opts.template}+${opts.pm}.yml`)
+    : path.join(templatesDir, `${opts.template}.yml`);
 
   let templateContent: string;
 
