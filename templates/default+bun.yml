@@ -62,10 +62,10 @@ jobs:
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: tarball
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
         with:
-          node-version: 24
-          package-manager-cache: false
+          bun-version: latest
       - run: bun publish --provenance --access public --tag next $TARBALL
         if: github.event.release.prerelease
         env:
