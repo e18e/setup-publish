@@ -18,7 +18,7 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
+        run: bun ci --ignore-scripts
       - name: Run tests
         run: bun test
   build:
@@ -36,7 +36,7 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
+        run: bun ci --ignore-scripts
       - run: bun run build
       - run: bun pm version $TAG_NAME --git-tag-version=false
         env:

@@ -18,7 +18,7 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
+        run: bun ci --ignore-scripts
       - name: Run tests
         run: bun test
   publish:
@@ -40,7 +40,7 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun install --frozen-lockfile --ignore-scripts
+        run: bun ci --ignore-scripts
       - run: bun run build
       - name: Create Release or Publish
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3

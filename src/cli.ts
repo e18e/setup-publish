@@ -185,7 +185,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         label: 'yarn'
       }
     ],
-    initialValue: opts.template
+    initialValue: opts.pm
   });
 
   if (prompts.isCancel(pm)) {
