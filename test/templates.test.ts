@@ -76,4 +76,17 @@ describe('createTemplate', () => {
     const content = await fs.readFile(outputPath, 'utf-8');
     expect(content).toContain('environment: foo');
   });
+
+  test('works for Bun', async () => {
+    await createTemplate({
+      env: undefined,
+      template: 'default',
+      pm: 'bun',
+      output: outputPath,
+      interactive: false
+    });
+    expect(await exists(outputPath)).toBe(true);
+    const content = await fs.readFile(outputPath, 'utf-8');
+    expect(content).toContain('Setup Bun');
+  });
 });
