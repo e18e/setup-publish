@@ -21,6 +21,7 @@ describe('getAvailableTemplates', () => {
     const templates = await getAvailableTemplates();
     const expectedTemplates = [
       'changelogithub',
+      'changelogithub+bun',
       'changesets',
       'changesets+bun',
       'default',
