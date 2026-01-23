@@ -1,9 +1,9 @@
-name: Publish to npm
+name: Publish to bun
 permissions: {}
 on:
-  release:
-    types:
-      - published
+  push:
+    tags:
+      - v*
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -13,15 +13,14 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
         with:
-          node-version: 24
-          cache: npm
+          bun-version: latest
       - name: Install dependencies
-        run: npm ci --ignore-scripts
+        run: bun ci --ignore-scripts
       - name: Run tests
-        run: npm test
+        run: bun test
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -32,20 +31,19 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
         with:
-          node-version: 24
-          package-manager-cache: false
+          bun-version: latest
       - name: Install dependencies
-        run: npm ci --ignore-scripts
-      - run: npm run build
-      - run: npm version $TAG_NAME --git-tag-version=false
+        run: bun ci --ignore-scripts
+      - run: bun run build
+      - run: bun version $TAG_NAME --git-tag-version=false
         env:
           TAG_NAME: ${{ github.ref_name }}
       - id: pack
         run: |-
-          TARBALL=$(npm pack)
+          TARBALL=$(bun pack)
           echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -64,16 +62,19 @@ jobs:
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: tarball
-      - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           package-manager-cache: false
-      - run: npm publish --provenance --access public --tag next $TARBALL
+      - run: bun publish --provenance --access public --tag next $TARBALL
         if: github.event.release.prerelease
         env:
           TARBALL: ${{ needs.build.outputs.tarball }}
-      - run: npm publish --provenance --access public $TARBALL
+      - run: bun publish --provenance --access public $TARBALL
         if: "!github.event.release.prerelease"
         env:
           TARBALL: ${{ needs.build.outputs.tarball }}
+      - name: Generate Change Log
+        run: bunx changelogithub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

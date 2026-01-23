@@ -19,7 +19,16 @@ const exists = async (path: string) => {
 describe('getAvailableTemplates', () => {
   test('should return an array of available templates', async () => {
     const templates = await getAvailableTemplates();
-    expect(templates).toEqual(['changelogithub', 'changesets', 'default']);
+    const expectedTemplates = [
+      'changelogithub',
+      'changelogithub+bun',
+      'changesets',
+      'changesets+bun',
+      'default',
+      'default+bun'
+    ];
+    expect(templates).toHaveLength(expectedTemplates.length);
+    expect(templates).toEqual(expect.arrayContaining(expectedTemplates));
   });
 });
 
@@ -67,5 +76,18 @@ describe('createTemplate', () => {
     expect(await exists(outputPath)).toBe(true);
     const content = await fs.readFile(outputPath, 'utf-8');
     expect(content).toContain('environment: foo');
+  });
+
+  test('works for Bun', async () => {
+    await createTemplate({
+      env: undefined,
+      template: 'default',
+      pm: 'bun',
+      output: outputPath,
+      interactive: false
+    });
+    expect(await exists(outputPath)).toBe(true);
+    const content = await fs.readFile(outputPath, 'utf-8');
+    expect(content).toContain('Setup Bun');
   });
 });

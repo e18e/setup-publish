@@ -1,0 +1,76 @@
+name: Publish to npm
+permissions: {}
+on:
+  release:
+    types:
+      - published
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun ci --ignore-scripts
+      - name: Run tests
+        run: bun test
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun ci --ignore-scripts
+      - run: bun run build
+      - run: bun pm version $TAG_NAME --git-tag-version=false
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+      - id: pack
+        run: |-
+          TARBALL=$(bun pm pack)
+          echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tarball
+          path: ${{ steps.pack.outputs.tarball }}
+  publish:
+    needs:
+      - test
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      TARBALL: ${{ needs.build.outputs.tarball }}
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: tarball
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 # v2.1.0
+        with:
+          bun-version: latest
+      - run: bun publish --provenance --access public --tag next $TARBALL
+        if: github.event.release.prerelease
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}
+      - run: bun publish --provenance --access public $TARBALL
+        if: "!github.event.release.prerelease"
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}

@@ -33,10 +33,21 @@ export async function createTemplate(opts: CLIOptions): Promise<void> {
 
   // Shouldn't ever happen but just in case
   if (!templates.includes(opts.template)) {
+    prompts.log.error('❌ Template for current configuration not found');
     return;
   }
 
-  const templatePath = path.join(templatesDir, `${opts.template}.yml`);
+  if (opts.pm && !templates.includes(`${opts.template}+${opts.pm}`)) {
+    prompts.log.warn(
+      '⚠️ Template for your package manager does not exist. Falling back to npm'
+    );
+    opts.pm = '';
+  }
+
+  const templatePath = opts.pm
+    ? path.join(templatesDir, `${opts.template}+${opts.pm}.yml`)
+    : path.join(templatesDir, `${opts.template}.yml`);
+
   let templateContent: string;
 
   try {

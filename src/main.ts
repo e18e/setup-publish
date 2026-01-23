@@ -2,7 +2,7 @@ import sade from 'sade';
 import {runCLI} from './cli.js';
 
 const cli = sade('@e18e/setup-publish', true);
-const CLI_VERSION = '0.0.0-dev';
+const CLI_VERSION = '0.0.10';
 
 /*
  * - changesets
