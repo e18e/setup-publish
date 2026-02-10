@@ -71,7 +71,7 @@ setup-publish --no-interactive --template changelogithub --env staging
 
 ### 🎯 **Default**
 
-Manual GitHub release management - this is the most baic setup, allowing you to create releases manually via GitHub's interface.
+Manual GitHub release management - this is the most basic setup, allowing you to create releases manually via GitHub's interface.
 
 ### 📝 **Changelogithub**
 
