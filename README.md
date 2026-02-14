@@ -81,6 +81,14 @@ Automated changelog generation using [changelogithub](https://github.com/antfu/c
 
 Automated releases with [changesets](https://github.com/changesets/changesets) - great for monorepos and coordinated releases.
 
+## Sponsors
+
+<p align="center">
+  <a href="https://e18e.dev/sponsors.svg">
+    <img src="https://e18e.dev/sponsors.svg" alt="e18e community sponsors" />
+  </a>
+</p>
+
 ## 📄 License
 
 MIT
