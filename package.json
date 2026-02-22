@@ -35,6 +35,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.0",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.1",
@@ -48,8 +49,8 @@
     "@clack/prompts": "^1.0.1",
     "dset": "^3.1.4",
     "picocolors": "^1.1.1",
-    "tinyexec": "^1.0.1",
     "sade": "^1.8.1",
+    "tinyexec": "^1.0.1",
     "yaml": "^2.8.2"
   }
 }
