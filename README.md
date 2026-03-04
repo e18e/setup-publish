@@ -84,7 +84,7 @@ Automated releases with [changesets](https://github.com/changesets/changesets) -
 ## Sponsors
 
 <p align="center">
-  <a href="https://github.com/sponsors/e18e">
+  <a href="https://e18e.dev/sponsor">
     <img src="https://e18e.dev/sponsors.svg" alt="e18e community sponsors" />
   </a>
 </p>
