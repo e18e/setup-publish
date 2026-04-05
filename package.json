@@ -46,7 +46,7 @@
     "vitest": "^4.0.15"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0",
+    "@clack/prompts": "^1.2.0",
     "dset": "^3.1.4",
     "picocolors": "^1.1.1",
     "sade": "^1.8.1",
