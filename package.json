@@ -36,13 +36,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.8.0",
-    "@vitest/coverage-v8": "^4.1.6",
+    "@types/node": "^25.9.1",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^10.4.0",
     "premove": "^4.0.0",
     "prettier": "^3.8.3",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.3",
+    "typescript-eslint": "^8.59.4",
     "vitest": "^4.0.15"
   },
   "dependencies": {
