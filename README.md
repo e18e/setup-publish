@@ -34,6 +34,7 @@ npx @e18e/setup-publish
 - **Install scripts disabled** - Prevents malicious package install scripts from running
 - **Separated jobs** - Build and publish run as independent jobs for better isolation
 - **Secure publish** - Publish job only uploads pre-built artifacts, no external code execution
+- **Staged publishes** - Releases are staged on npm for manual approval before going live (where supported by the template)
 
 ## ⚙️ Options
 
@@ -80,6 +81,9 @@ Automated changelog generation using [changelogithub](https://github.com/antfu/c
 ### 🔄 **Changesets**
 
 Automated releases with [changesets](https://github.com/changesets/changesets) - great for monorepos and coordinated releases.
+
+> [!NOTE]
+> Changesets does not yet support npm staging, so releases publish directly.
 
 ## Sponsors
 

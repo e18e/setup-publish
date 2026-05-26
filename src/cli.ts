@@ -121,7 +121,7 @@ ${pc.cyan('3.')} ${pc.dim('(Optional)')} If you want this to be a pre-release, c
 
 ${pc.cyan('4.')} Publish the release!
 
-${pc.green('The workflow will now be triggered and will automatically publish to npm.')}
+${pc.green('The workflow will now be triggered and will stage the release on npm. Visit the npm staging page to approve and publish it.')}
 `;
 
 const changelogithubTemplateSummary = `
@@ -138,7 +138,7 @@ ${pc.gray('$')} ${pc.blue('git push origin vX.Y.Z')}
 
 ${pc.dim('NOTE')} If you want this to be a pre-release, use a pre-release semantic version such as ${pc.yellow('vX.Y.Z-beta.0')}.
 
-${pc.green('Changelogithub will now automatically create a GitHub release, and the package will be published to npm.')}
+${pc.green('Changelogithub will automatically create a GitHub release, and the package will be staged on npm. Visit the npm staging page to approve and publish it.')}
 `;
 
 const changesetsTemplateSummary = `
@@ -233,7 +233,7 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         prompts.text({
           message:
             'GitHub Environment\n' +
-            'If set, this will link the publishing job to a GitHub Environment which allows for required approvals.',
+            'If set, this will link the publishing job to a GitHub Environment which allows for required approvals in GitHub.',
           placeholder: opts.env ?? 'none',
           defaultValue: opts.env ?? ''
         })
