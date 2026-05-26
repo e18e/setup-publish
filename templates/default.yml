@@ -69,11 +69,11 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
-      - run: npm publish --provenance --access public --tag next $TARBALL
+      - run: npm stage publish --provenance --access public --tag next $TARBALL
         if: github.event.release.prerelease
         env:
           TARBALL: ${{ needs.build.outputs.tarball }}
-      - run: npm publish --provenance --access public $TARBALL
+      - run: npm stage publish --provenance --access public $TARBALL
         if: "!github.event.release.prerelease"
         env:
           TARBALL: ${{ needs.build.outputs.tarball }}
