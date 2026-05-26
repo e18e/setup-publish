@@ -64,6 +64,8 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
+      - run: npm install -g npm@~11.10.0 # Work-around for https://github.com/npm/cli/issues/9151#issuecomment-4131466208
+      - run: npm install -g npm@latest
       - run: npm stage publish --provenance --access public --tag next $TARBALL
         if: github.event.release.prerelease
         env:
