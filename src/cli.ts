@@ -3,7 +3,7 @@ import type {CLIOptions} from './types.js';
 import {generateWorkflow} from './workflow.js';
 import {x} from 'tinyexec';
 import {getAvailableTemplates} from './templates.js';
-import pc from 'picocolors';
+import {styleText} from 'node:util';
 
 function cancelInteractive(): never {
   prompts.cancel('✋  Operation cancelled');
@@ -104,58 +104,58 @@ async function setupChangelogithub(): Promise<void> {
 }
 
 const defaultTemplateSummary = `
-${pc.green('GitHub releases are now configured to be managed manually.')}
+${styleText('green', 'GitHub releases are now configured to be managed manually.')}
 
-${pc.bold('To create a new release, follow these steps:')}
+${styleText('bold', 'To create a new release, follow these steps:')}
 
-${pc.cyan('1.')} Tag the ${pc.yellow('`main`')} branch with the new semantic version:
+${styleText('cyan', '1.')} Tag the ${styleText('yellow', '`main`')} branch with the new semantic version:
 
-${pc.gray('$')} ${pc.blue('git checkout main')}
-${pc.gray('$')} ${pc.blue('git pull')}
-${pc.gray('$')} ${pc.blue('git tag vX.Y.Z')} ${pc.gray('# Replace X.Y.Z with the new version number')}
-${pc.gray('$')} ${pc.blue('git push origin vX.Y.Z')}
+${styleText('gray', '$')} ${styleText('blue', 'git checkout main')}
+${styleText('gray', '$')} ${styleText('blue', 'git pull')}
+${styleText('gray', '$')} ${styleText('blue', 'git tag vX.Y.Z')} ${styleText('gray', '# Replace X.Y.Z with the new version number')}
+${styleText('gray', '$')} ${styleText('blue', 'git push origin vX.Y.Z')}
 
-${pc.cyan('2.')} Create a new release on GitHub (GitHub will automatically populate this with a changelog based on merged PRs).
+${styleText('cyan', '2.')} Create a new release on GitHub (GitHub will automatically populate this with a changelog based on merged PRs).
 
-${pc.cyan('3.')} ${pc.dim('(Optional)')} If you want this to be a pre-release, check the ${pc.yellow('"Set as pre-release"')} option.
+${styleText('cyan', '3.')} ${styleText('dim', '(Optional)')} If you want this to be a pre-release, check the ${styleText('yellow', '"Set as pre-release"')} option.
 
-${pc.cyan('4.')} Publish the release!
+${styleText('cyan', '4.')} Publish the release!
 
-${pc.green('The workflow will now be triggered and will stage the release on npm. Visit the npm staging page to approve and publish it.')}
+${styleText('green', 'The workflow will now be triggered and will stage the release on npm. Visit the npm staging page to approve and publish it.')}
 `;
 
 const changelogithubTemplateSummary = `
-${pc.green('GitHub releases are now configured to be managed using changelogithub.')}
+${styleText('green', 'GitHub releases are now configured to be managed using changelogithub.')}
 
-${pc.bold('To create a new release, follow these steps:')}
+${styleText('bold', 'To create a new release, follow these steps:')}
 
-${pc.cyan('1.')} Tag the ${pc.yellow('`main`')} branch with the new semantic version:
+${styleText('cyan', '1.')} Tag the ${styleText('yellow', '`main`')} branch with the new semantic version:
 
-${pc.gray('$')} ${pc.blue('git checkout main')}
-${pc.gray('$')} ${pc.blue('git pull')}
-${pc.gray('$')} ${pc.blue('git tag vX.Y.Z')} ${pc.gray('# Replace X.Y.Z with the new version number')}
-${pc.gray('$')} ${pc.blue('git push origin vX.Y.Z')}
+${styleText('gray', '$')} ${styleText('blue', 'git checkout main')}
+${styleText('gray', '$')} ${styleText('blue', 'git pull')}
+${styleText('gray', '$')} ${styleText('blue', 'git tag vX.Y.Z')} ${styleText('gray', '# Replace X.Y.Z with the new version number')}
+${styleText('gray', '$')} ${styleText('blue', 'git push origin vX.Y.Z')}
 
-${pc.dim('NOTE')} If you want this to be a pre-release, use a pre-release semantic version such as ${pc.yellow('vX.Y.Z-beta.0')}.
+${styleText('dim', 'NOTE')} If you want this to be a pre-release, use a pre-release semantic version such as ${styleText('yellow', 'vX.Y.Z-beta.0')}.
 
-${pc.green('Changelogithub will automatically create a GitHub release, and the package will be staged on npm. Visit the npm staging page to approve and publish it.')}
+${styleText('green', 'Changelogithub will automatically create a GitHub release, and the package will be staged on npm. Visit the npm staging page to approve and publish it.')}
 `;
 
 const changesetsTemplateSummary = `
-${pc.green('GitHub releases are now configured to be managed using Changesets.')}
+${styleText('green', 'GitHub releases are now configured to be managed using Changesets.')}
 
-${pc.bold('To create a new release, follow these steps:')}
+${styleText('bold', 'To create a new release, follow these steps:')}
 
-${pc.cyan('1.')} Create a changeset describing the changes in this release:
+${styleText('cyan', '1.')} Create a changeset describing the changes in this release:
 
-${pc.gray('$')} ${pc.blue('npx changeset')}
-${pc.dim('# Follow the prompts to describe the changes and set the version bump (major, minor, patch)')}
+${styleText('gray', '$')} ${styleText('blue', 'npx changeset')}
+${styleText('dim', '# Follow the prompts to describe the changes and set the version bump (major, minor, patch)')}
 
-${pc.cyan('2.')} Commit the changeset file and open a pull request to merge it into ${pc.yellow('`main`')}.
+${styleText('cyan', '2.')} Commit the changeset file and open a pull request to merge it into ${styleText('yellow', '`main`')}.
 
-${pc.cyan('3.')} Once the PR is merged, changesets will automatically create a release pull request. Review and merge this PR to create a new GitHub release and publish to npm.
+${styleText('cyan', '3.')} Once the PR is merged, changesets will automatically create a release pull request. Review and merge this PR to create a new GitHub release and publish to npm.
 
-${pc.green('The workflow will now be triggered and will automatically publish to npm.')}
+${styleText('green', 'The workflow will now be triggered and will automatically publish to npm.')}
 `;
 
 const templateSummaries: Record<string, string> = {
