@@ -1,0 +1,85 @@
+name: Publish to npm
+permissions: {}
+on:
+  release:
+    types:
+      - published
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run tests
+        run: pnpm test
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run build
+      - run: pnpm version $TAG_NAME --git-tag-version=false
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+      - id: pack
+        run: |-
+          TARBALL=$(pnpm pack | tail -n 1)
+          echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tarball
+          path: ${{ steps.pack.outputs.tarball }}
+  publish:
+    needs:
+      - test
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      TARBALL: ${{ needs.build.outputs.tarball }}
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: tarball
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: pnpm stage publish --provenance --access public --tag next $TARBALL
+        if: github.event.release.prerelease
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}
+      - run: pnpm stage publish --provenance --access public $TARBALL
+        if: "!github.event.release.prerelease"
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}

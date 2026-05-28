@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createTemplate > copies template file to output 1`] = `[]`;
+
+exports[`createTemplate > copies template file to output 2`] = `[]`;
+
+exports[`createTemplate > does nothing for unknown template 1`] = `
+[
+  [
+    "❌ Template for current configuration not found",
+  ],
+]
+`;
+
+exports[`createTemplate > sets environment variable if provided 1`] = `[]`;
+
+exports[`createTemplate > sets environment variable if provided 2`] = `[]`;
+
+exports[`createTemplate > warns and falls back when pm template missing 1`] = `
+[
+  [
+    "⚠️ Template for your package manager does not exist. Falling back to npm",
+  ],
+]
+`;
+
+exports[`createTemplate > works for Bun 1`] = `[]`;
+
+exports[`createTemplate > works for Bun 2`] = `[]`;

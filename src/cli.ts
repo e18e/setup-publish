@@ -173,12 +173,12 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         label: 'npm'
       },
       {
-        value: 'bun',
-        label: 'Bun'
+        value: 'pnpm',
+        label: 'pnpm'
       },
       {
-        value: 'other',
-        label: 'Other (fallbacks to npm)'
+        value: 'bun',
+        label: 'Bun'
       }
     ],
     initialValue: opts.pm
