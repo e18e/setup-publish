@@ -45,6 +45,7 @@ By default, the CLI runs in **interactive mode**, prompting you for configuratio
 | `--output <path>` | Output path for the generated workflow file | `.github/workflows/publish.yml` | Any valid file path |
 | `--template <name>` | Template to use for workflow generation | `default` | <ul><li>`default` - Manual GitHub release management</li><li>`changelogithub` - Automated changelog with changelogithub</li><li>`changesets` - Automated releases with changesets</li></ul> |
 | `--env <env>` | GitHub environment for deployment protection | _none_ | Any environment name |
+| `--pm <name>` | Package manager to use in the generated workflow | `npm` | `npm`, `pnpm`, `bun` |
 | `--interactive` | Run CLI in interactive mode | `true` | boolean |
 
 ## 📚 Examples
