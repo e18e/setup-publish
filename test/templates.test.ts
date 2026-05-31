@@ -40,7 +40,8 @@ describe('getAvailableTemplates', () => {
       'changesets+pnpm',
       'default',
       'default+bun',
-      'default+pnpm'
+      'default+pnpm',
+      'uppt'
     ];
     expect(templates).toHaveLength(expectedTemplates.length);
     expect(templates).toEqual(expect.arrayContaining(expectedTemplates));
