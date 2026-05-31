@@ -158,10 +158,26 @@ ${styleText('cyan', '3.')} Once the PR is merged, changesets will automatically 
 ${styleText('green', 'The workflow will now be triggered and will automatically publish to npm.')}
 `;
 
+const upptTemplateSummary = `
+${styleText('green', 'Releases are now configured to be managed using uppt.')}
+
+${styleText('bold', 'To create a new release, follow these steps:')}
+
+${styleText('cyan', '1.')} Merge one or more pull requests into ${styleText('yellow', '`main`')}.
+${styleText('dim', 'NOTE')} Ensure you use conventional commit messages in these PRs, as uppt uses these to determine the version bump and generate the changelog.
+
+${styleText('cyan', '2.')} This will create or update a release branch (e.g. ${styleText('yellow', '`release/vX.Y.Z`')}) and open a pull request to merge this release branch back into ${styleText('yellow', '`main`')}.
+
+${styleText('cyan', '3.')} Review and merge the release pull request to create a new GitHub release and stage the release in npm.
+
+${styleText('green', 'The package will now be staged in npm. Visit the npm staging page to approve and publish it.')}
+`;
+
 const templateSummaries: Record<string, string> = {
   default: defaultTemplateSummary,
   changelogithub: changelogithubTemplateSummary,
-  changesets: changesetsTemplateSummary
+  changesets: changesetsTemplateSummary,
+  uppt: upptTemplateSummary
 };
 
 async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
@@ -205,6 +221,11 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
         value: 'changesets',
         label: 'Changesets',
         hint: 'Automate changelog generation and releases using changesets'
+      },
+      {
+        value: 'uppt',
+        label: 'uppt',
+        hint: 'Automate release management using uppt to create release branches and GitHub releases'
       }
     ],
     initialValue: opts.template
@@ -221,6 +242,11 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
     await setupChangeSets();
   }
 
+  let defaultEnv = '';
+  if (template === 'uppt') {
+    defaultEnv = 'npm';
+  }
+
   const userOptions = await prompts.group(
     {
       output: () =>
@@ -234,8 +260,8 @@ async function runInteractive(opts: CLIOptions): Promise<CLIOptions> {
           message:
             'GitHub Environment\n' +
             'If set, this will link the publishing job to a GitHub Environment which allows for required approvals in GitHub.',
-          placeholder: opts.env ?? 'none',
-          defaultValue: opts.env ?? ''
+          placeholder: defaultEnv === '' ? 'none' : defaultEnv,
+          defaultValue: defaultEnv
         })
     },
     {
